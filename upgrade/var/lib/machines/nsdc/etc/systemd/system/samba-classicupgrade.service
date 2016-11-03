@@ -1,0 +1,24 @@
+[Unit]
+Description=Domain controller provisioning
+Before=samba.service
+ConditionPathExists=/etc/samba/smb.classicupgrade.conf
+ConditionPathExists=!/var/lib/samba/private/krb5.conf
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+Environment=OPTIONS=
+Environment=DOMAIN=mycompany
+Environment=REALM=mycompany.local
+Environment=ADMINPASS=Nethesis,1234
+Environment=FWDNS=8.8.4.4
+EnvironmentFile=-/etc/sysconfig/samba-provision
+ExecStart=/usr/bin/samba-tool domain classicupgrade \
+    "--option=dns forwarder=${FWDNS}" \
+    "--domain=${DOMAIN}" "--realm=${REALM}" \
+    "--adminpass=${ADMINPASS}" ${OPTIONS} \
+    ; /bin/cp -av /var/lib/samba/private/krb5.conf /etc/krb5.conf \
+    ; /bin/sed "--expression=\x24 a\\\n\\\n[global]\\\nldap server require strong auth=no" -i /etc/samba/smb.conf
+
+[Install]
+WantedBy=multi-user.target
