@@ -101,7 +101,7 @@ Clean up any previous join state: ::
 
 Join the domain: ::
 
-   realm join -v -U admin $(config getprop sssd Realm)
+   realm join --membership-software=adcli -v -U admin $(config getprop sssd Realm)
 
 You can replace ``admin`` with any other administrative account name. The
 command above prompts for a password. When join is successful: ::
